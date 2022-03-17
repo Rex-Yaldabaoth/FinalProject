@@ -17,6 +17,7 @@ int main(){
     params[5] = parameters.alpha;
 
     params[7] = parameters.x;
+    char fileoutname[100] = {};
 
     #pragma omp for 
 
@@ -25,7 +26,7 @@ int main(){
             double R = i * 0.0002 + 0.5;
             //double R = 0.5;
             params[6] = R;
-            char fileoutname[100] = {};
+            memset(fileoutname, 0, sizeof fileoutname);
             FILE* file_out;
 
             sprintf(fileoutname, "output_files/data for flowrate = %lf.txt", R);

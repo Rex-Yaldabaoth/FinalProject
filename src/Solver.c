@@ -54,6 +54,7 @@ void solver(void* params[], FILE* file_out){
     write_file(t, y[0], y[2], y[1], dripped, file_out);
 
     gsl_odeiv2_system sys = {func, jac, 3, params};
+    gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(&sys, gsl_odeiv2_step_rk4, 1e-6, 1e-6, 0.0);
 
     while(t < tmax){
         
@@ -66,8 +67,6 @@ void solver(void* params[], FILE* file_out){
         }
 
         ti = t + dt; //Next time is current time + timestep
-
-        gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(&sys, gsl_odeiv2_step_rk4, 1e-6, 1e-6, 0.0);
 
         int status = gsl_odeiv2_driver_apply(d, &t, ti, y);
 
@@ -97,6 +96,7 @@ void solver(void* params[], FILE* file_out){
             double v = y[2];
 
             henon(params, &x, &v, &M, &t, dripped, file_out);
+            d = gsl_odeiv2_driver_alloc_y_new(&sys, gsl_odeiv2_step_rk4, 1e-6, 1e-6, 0.0);
 
             y[0] = x;
             y[1] = M;
@@ -107,5 +107,7 @@ void solver(void* params[], FILE* file_out){
         }
 
     }
+
+    gsl_odeiv2_driver_free (d);
 
 }

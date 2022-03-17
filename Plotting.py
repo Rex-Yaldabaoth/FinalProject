@@ -29,8 +29,9 @@ for file_name in files:
     for i in range(0, column_length, 1):
 
         if current_file[i,4] == 1:
+            if current_file[i,0] > 10:
 
-            t = np.append(t, current_file[i,0])
+                t = np.append(t, current_file[i,0])
     
     for i in range(0, len(t), 1):
 
@@ -42,10 +43,10 @@ for file_name in files:
     flows = np.append(flows, np.full(periods_temp.shape, R))
     periods = np.append(periods, periods_temp)
 
-fig = plt.figure(figsize=(5, 5), dpi=250)
-plt.grid(True, which="both", axis="both")
+fig = plt.figure(figsize=(15, 10), dpi=300)
+#plt.grid(True, which="both", axis="both")
 plt.rc('axes', axisbelow=True)
-plt.scatter(flows, periods, marker='.')
+plt.scatter(flows, periods, marker=',', color='black', s=0.1)
 plt.xlabel('Flow rate (R)')
 plt.ylabel('Time period between drips (s)')
 plt.title("Bifrucation Diagram")
