@@ -105,7 +105,7 @@ void solver(void* params[], FILE* file_out, int drip_mode){
             y[1] = M;
             y[2] = v;
 
-            dripped = 0;//Tell it that it has no longer dripped
+            dripped = 0;//Tell loop that the drip is finished
             t_prev_drip = t;
 
         }
