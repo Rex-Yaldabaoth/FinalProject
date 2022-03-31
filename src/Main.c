@@ -1,6 +1,10 @@
 #include "Header.h"
 
-
+/*This code loops over a large range of flow rates for a simulation of a dripping tap. For each slow rate, a while loop where where GSL's ODE solver runs while the current time is less than the end time runs.
+*The code checks whether a drip has occured each iteration, and when it has, a different version of the solver integrates backwards to the drip point. The relevant data is then written to a file named based on the current flow rate.
+*The solver parameters are first read into a struct, and then put into an array called params (this is done as it is the format GSL's ODE solver expects)
+*There are two dripping modes to chose between, which the user slects are the start. 
+*/
 
 int main(){
 
