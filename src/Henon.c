@@ -1,7 +1,9 @@
 #include "Header.h"
 
-int
-henonfunc (double x, const double y[], double f[], void* params[]){
+/* The things done by this function are done as in M.Henon 1982, cited by the paper I am working from.
+* THe point of it is to integrate back to the precise point at which the solver exceeded the critical value, to avoid any errors that might occur from overshooting the critical value
+*/
+int henonfunc (double x, const double y[], double f[], void* params[]){//new functions for this one step
 
     double R = ((double *)params)[6];
     double k = ((double *)params)[2];
@@ -13,8 +15,7 @@ henonfunc (double x, const double y[], double f[], void* params[]){
 
 }
 
-int
-henonjac (double x, const double y[], double *dfdy, double dfdx[], void* params[]){
+int henonjac (double x, const double y[], double *dfdy, double dfdx[], void* params[]){//new jacobian for this one step
 
     double R = ((double *)params)[6];
     double k = ((double *)params)[2];
@@ -37,36 +38,52 @@ henonjac (double x, const double y[], double *dfdy, double dfdx[], void* params[
 
 }
 
-void henon(void* params[], double* x, double* v, double* M, double* t, short int dripped, FILE* file_out){
+void henon(void* params[], double* x, double* v, double* M, double* t, short int dripped, FILE* file_out, double* mass_gain, int drip_mode, double* mass_loss, double* t_prev_drip){
 
-    double y[] = {*t, *M, *v};
-    const double h = ((double *)params)[4] - *x;
+    double y[] = {*t, *M, *v}; //Set y to be the parameters passed in from the main solver
+    const double h = ((double *)params)[4] - *x; //the difference in position between the current position, and the critical length
 
-    gsl_odeiv2_system sys = {henonfunc, henonjac, 3, params};
 
-    gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(&sys, gsl_odeiv2_step_rk4, 1e-7, 1e-6, 0.0);
+    gsl_odeiv2_system sys = {henonfunc, henonjac, 3, params};//New henon system
 
-    int status = gsl_odeiv2_driver_apply_fixed_step(d, x, h/100.0, 100, y);
+    gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(&sys, gsl_odeiv2_step_rk4, 1e-7, 1e-6, 0.0);//new driver for the henon system
 
-       if(status != GSL_SUCCESS){
+    int status = gsl_odeiv2_driver_apply_fixed_step(d, x, h/100.0, 100, y);//Breaks the interval of size h into 100 steps, and then integrates through them
 
-        printf("error, %s\n", gsl_strerror(status));
+        if(status != GSL_SUCCESS){
+
+            printf("error, %s\n", gsl_strerror(status));
 
         }
 
-    gsl_odeiv2_driver_free (d);
+    gsl_odeiv2_driver_free (d);//Free the driver
 
-    *t = y[0];
+    *t = y[0]; //Extract the values of the exact drip point to put back into the solver
     *M = y[1];
     *v = y[2];
 
-    write_file(*t, *x, *v, *M, dripped, file_out);
+    double dM = 0;
 
-    double dM = ((double *)params)[5] * y[1] * y[2];
-    double x_new = *x - pow((3 * dM)/(4 * pi), (1.0/3.0)) * (dM/y[1]);
+    if(drip_mode == 1){
+        dM = ((double *)params)[5] * y[1] * y[2]; //Change in mass caused by the drip
+    }
+    
+    if(drip_mode == 2){
+        dM = ((double *)params)[5] * y[2]; 
+    }
 
-    *x = x_new;
+    double x_new = *x - pow((3 * dM)/(4 * pi), (1.0/3.0)) * (dM/y[1]); //Change in position caused by the drip
+
+    *mass_gain += ((*t - *t_prev_drip) * ((double *)params)[6]); //The difference between the accumulated mass up to this time, and the mass removed the drip will be the error in mass
+    *mass_loss += dM;
+    double Merr_percent = ((*mass_gain - *mass_loss) / *mass_gain) * 100;
+
+    write_file(*t, *x, *v, *M, dripped, file_out, Merr_percent);//write the data for the exact drip point
+
+    *x = x_new; //Set the mass and position to the new, post drip positions
     *M = y[1] - dM;
+
+    
 
 
 }

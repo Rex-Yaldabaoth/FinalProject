@@ -26,8 +26,8 @@ typedef struct run_parameters{ //Struct containing the properties of an individu
 
 } Run_Parameters;
 
-void read_file(Run_Parameters * parameters);
-void solver(void* params[], FILE* file_out);
-void henon(void* params[], double* x, double* v, double* M, double* t, short int dripped, FILE* file_out);
-void write_file(double t, double x, double v, double M, short int dripped, FILE* file_out);
+void read_file(Run_Parameters * parameters, int drip_mode);
+void solver(void* params[], FILE* file_out, int drip_mode);
+void henon(void* params[], double* x, double* v, double* M, double* t, short int dripped, FILE* file_out, double* mass_gain, int drip_mode, double* mass_loss, double* t_prev_drip);
+void write_file(double t, double x, double v, double M, short int dripped, FILE* file_out, double Merr);
 

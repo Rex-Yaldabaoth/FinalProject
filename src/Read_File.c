@@ -1,10 +1,18 @@
 #include "Header.h"
 
-void read_file(Run_Parameters * parameters){
+void read_file(Run_Parameters * parameters, int drip_mode){
 
     FILE* file_in;
-    char* filename = "run_params";
+    char* filename;
 
+    if(drip_mode == 1){
+        filename = "run_params1";
+    }
+
+    if(drip_mode == 2){
+        filename = "run_params2";
+    }
+    
     file_in = fopen(filename,"r");
 
     if(file_in == NULL){
