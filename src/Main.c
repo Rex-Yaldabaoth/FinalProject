@@ -38,7 +38,7 @@ int main(){
 
     #pragma omp for //openmp parallel for loop
 
-        for(int i = 0; i < 5000 ; i++){
+        for(int i = 0; i < 4000 ; i++){
 
             double R = i * 0.0002 + 0.5; //Flow rate, increasing for each run of the simulation. Starts at 0.5
             //double R = 0.885;
